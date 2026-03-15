@@ -1,7 +1,7 @@
 # Automation_Sql_PowerBI_Python_Retail
 ## PREDICTIVE RETAIL ANALYTICS AND CONSUMER BEHAVIOUR
 ## Automate Snowflake to extract data From AWS s3 Bucket into respected tables using stored procedures which are scheduled using cron expression, then KPI are updated again through Stored Procedure which are also sheduled using cron expression and snowflake is connected to python for EDA using sql-connector-python[pandas] and again new created cleaned files are sent back  to snowflake and those data are sent to powe bi for visualisation which is shared to power bi sevice 
-https://app.powerbi.com/links/ha3tvBRGkF?ctid=5329fec2-b872-4a09-9978-aee1a90e0bf8&pbi_source=linkShare&bookmarkGuid=25b15ffe-36f0-4aa9-bf2c-2f646f98f48d
+https://app.powerbi.com/links/pQr689N_nC?ctid=5329fec2-b872-4a09-9978-aee1a90e0bf8&pbi_source=linkShare&bookmarkGuid=811b6346-e112-4402-abb8-18bb52fe2d9a
 and schedule refreshes for upadated data.
 
 Objective : To Transform 2 Million + raw retail transactions into actionable business intelligence using SQL,  
