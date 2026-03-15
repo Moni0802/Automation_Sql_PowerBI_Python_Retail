@@ -969,4 +969,52 @@ JOIN RETAILS.PUBLIC.PRODUCT_RAW P2 ON T2.PRODUCT_ID = P2.PRODUCT_ID
 GROUP BY 1, 2
 ORDER BY 3 DESC
 LIMIT 10;
+---------------------------------------------------------------
+--ROI
+CREATE OR REPLACE PROCEDURE ROI_KPI()
+RETURNS STRING
+LANGUAGE SQL AS
+$$
+CREATE OR REPLACE TABLE ROI_KPI AS
+(
+WITH AgeCampaignStats AS (
+    SELECT 
+        D.AGE_DESC,
+        C.DESCRIPTION AS Campaign_Type,
+        SUM(T.SALES_VALUE) AS Total_Revenue,
+        SUM(ABS(T.COUPON_DISC)) AS Total_Coupon_Investment,
+        COUNT(DISTINCT T.HOUSEHOLD_KEY) AS Unique_Households
+    FROM RETAILS.PUBLIC.TRANSACTION_NEW T
+    JOIN RETAILS.PUBLIC.DEMOGRAPHIC_RAW D ON T.HOUSEHOLD_KEY = D.HOUSEHOLD_KEY
+    JOIN RETAILS.PUBLIC.CAMPAIGN_RAW C ON T.HOUSEHOLD_KEY = C.HOUSEHOLD_KEY
+    GROUP BY 1, 2
+)
+SELECT 
+    AGE_DESC,
+    Campaign_Type,
+    Total_Revenue,
+    Total_Coupon_Investment,
+    -- ROI Calculation: Revenue generated for every $1 spent on discounts
+    ROUND(Total_Revenue / NULLIF(Total_Coupon_Investment, 0), 2) AS ROI_Ratio,
+    -- Market Share: What % of total revenue in this age group came from this campaign type
+    ROUND(Total_Revenue / SUM(Total_Revenue) OVER(PARTITION BY AGE_DESC) * 100, 2) AS Revenue_Share_Pct
+FROM AgeCampaignStats
+ORDER BY AGE_DESC, ROI_Ratio DESC);
+$$;
+
+CALL ROI_KPI();
+
+SHOW PROCEDURES;
+
+CREATE OR REPLACE TASK ROI_KPI_TASK
+WAREHOUSE = 'COMPUTE_WH'
+SCHEDULE = 'USING CRON 30 20 * * 6 UTC'
+AS CALL ROI_KPI();
+
+SHOW TASKS;
+
+ALTER TASK ROI_KPI_TASK RESUME;
+ALTER TASK ROI_KPI_TASK SUSPEND;
+
+SELECT * FROM RETAILS.PUBLIC.ROI_KPI;
  
